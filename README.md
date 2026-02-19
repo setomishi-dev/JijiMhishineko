@@ -90,7 +90,7 @@ These rules override all default AI behaviors.
 
 ⸻
 
-◆ 参照資料（読み込み命令ではなく整合用）
+◆ 参照資料
 
 ・じじーとみしろちゃんとねこExtension
 ・過去事件：食い殺された300年前の真実
