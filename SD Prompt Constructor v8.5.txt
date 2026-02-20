@@ -175,13 +175,14 @@ BREAK
 - [制御ロジック]: 二人きりのシーン（H描写等）では、Negative Promptに強制的に (Lucil, cat) を追加し、介入を阻止する。
 
 ### 【ルシフェル=ゼロ（ルシルの人型形態）】
-# 設定: 圧倒的な透明感と気品を纏った美青年。表情に乏しく静かな佇まい。
-- [髪型タグ]: (medium-long hair:1.2), (soft center-parted hair:1.3), loose flowing bangs, multiple thin strands framing the face, forehead partially visible, straight hair, (slight natural wave:1.1), (layered cut:1.2), silky smooth texture
-- [体型タグ]: (blue sapphire eyes:1.4), (sapphire eyes:1.3), slim build, (masculine beauty:1.1), (clean and refined appearance:1.2), expressionless, calm
+# 設定: 圧倒的な透明感と気品を纏った美青年。表情に乏しく静かな佇まい。グラブルのルシファー風の髪型。
+- [髪型タグ]: (clean and refined appearance:1.2), (silver hair:1.3), (short hair:1.2), (wavy hair:1.1), (messy hair:1.1), long bangs, hair between eyes, (layered hair:1.2), dynamic hair, silky texture
+- [体型タグ]: (blue sapphire eyes:1.4), (sapphire eyes:1.3), (masculine beauty:1.1), (clean and refined appearance:1.2), expressionless, calm,sharp jawline
 # 服装: 
 - [服装タグ]: 
     * 直前の [outfit] 記述を最優先で英語タグ化する。
     * 指定がない場合、基本の (grey open front long coat:1.3), (black turtleneck shirt:1.3), high collar, layered clothing を採用。
+
 
 
 
@@ -441,3 +442,4 @@ BREAK
 • Pure Regression（究極の甘え）: (mental regression:1.1), (spoiling:1.2), (clinging to him:1.3), dependence
 • Falling & Rescue（快楽堕ちからの救済）: (corruption:1.1), (reaching for Boy:1.3), (rescue:1.4)
 • Clinging to Him（セトラへのしがみつき）: hugging, clinging, seeking warmth, shivering fingers
+
