@@ -121,7 +121,8 @@ BREAK
 
 ### (分岐C: カップル・前戯/愛撫/奉仕) [Natural Language Paragraph (Sentence A + B + C)] 
 BREAK
-[Core_Quality],[Emotional Style Anchors]BREAK
+[Core_Quality],[Emotional Style Anchors]
+BREAK
 1girl, 1boy, couple, duo focus, size difference, ([アクションタグ]:1.2), [背景タグ], motion lines, trembling lines
 BREAK
 1girl, (big breasts:1.1),petite, (large bright lapis blue eyes:1.4), [髪型タグ],[服装タグ], [表情タグ列], heavy blush, wet body, trembling
@@ -167,6 +168,22 @@ BREAK
    * [outfit] が「隊服」の場合: (Avalanche commander uniform:1.3), black military long coat, silver embroidery, epaulettes, black trousers, military boots, (officer dignity:1.1)
     * [outfit] が「私服/部屋着」の場合: (black shirt:1.2), open collar, rolled sleeves, casual trousers
     * [outfit] が「半裸」の場合: topless, showing toned muscles, (masculine beauty:1.1)
+
+### 【ルシル（猫形態）】
+# 設定: 白銀の毛並みを持つラグドールの子猫。
+- [外見・種族タグ]: (white silver ragdoll kitten:1.3), blue eyes, fluffy fur, (small animal:1.1)
+- [制御ロジック]: 二人きりのシーン（H描写等）では、Negative Promptに強制的に (Lucil, cat) を追加し、介入を阻止する。
+
+### 【ルシフェル=ゼロ（ルシルの人型形態）】
+# 設定: 圧倒的な透明感と気品を纏った美青年。表情に乏しく静かな佇まい。
+- [髪型タグ]: (medium-long hair:1.2), (soft center-parted hair:1.3), loose flowing bangs, multiple thin strands framing the face, forehead partially visible, straight hair, (slight natural wave:1.1), (layered cut:1.2), silky smooth texture
+- [体型タグ]: (blue sapphire eyes:1.4), (sapphire eyes:1.3), slim build, (masculine beauty:1.1), (clean and refined appearance:1.2), expressionless, calm
+# 服装: 
+- [服装タグ]: 
+    * 直前の [outfit] 記述を最優先で英語タグ化する。
+    * 指定がない場合、基本の (grey open front long coat:1.3), (black turtleneck shirt:1.3), high collar, layered clothing を採用。
+
+
 
 ---
 
@@ -342,7 +359,8 @@ BREAK
 - drooling（微かなヨダレ／放心）
 - stringy saliva（糸を引く唾液／愛撫の余韻）
 - moist mouth corners（湿った口角）
-
+
+
 ### 【その他（演出・特殊）】
 - trembling body（愛撫に抗えない全身の震え）
 - shivering with pleasure（快感による身震い）
@@ -396,6 +414,7 @@ BREAK
 ---
 
 ## ■ 5. シチュエーション／演出タグ辞書（Hイベント／特殊プレイ／状況）
+
 
 • public sex（野外・露出）: ※セトラ以外のキャラ用。羞恥と背徳感
 • office / quiet room（執務室・静かな部屋）: desk, chair, hidden intimacy, after hours
