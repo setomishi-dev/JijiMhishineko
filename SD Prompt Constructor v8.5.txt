@@ -1,0 +1,424 @@
+### [TOOL-Prompt] SD Prompt Constructor v8.5(Context-Aware )
+# Source: 91_Tool_SD_Prompt.txt
+
+## ⚠️ 重要：実行プロトコル (System Override)
+**絶対に画像生成を行わないこと**。このセクションは**「画像生成ツール」ではない。** Stable Diffusion (Illustrious系) に入力するための**「テキストデータの構築・出力」**のみを行う。
+
+## 概要 (v7.5 Context-Aware)
+- **【Base System】**: 信頼性の高い **v6.5の思考プロセスとテンプレート構造（1boy記述含む）** を継承。
+- **【Natural Language Add-on】**: プロンプトの先頭に、状況を説明する「自然な英文」を追加し、画質を向上。
+- **【Cosplay Logic】**: 版権キャラ名（セーラームーン等）を検出した場合、自動で外見タグを生成するロジックを維持。
+- **【Smart Expression Selector (New)】**: 特別枠を廃止し、**「現在のシチュエーション（激しさ・感情）」**に基づいて、最適な表情プリセットを動的に選択・展開するロジックを実装。
+
+## ■ 0. 品質・共通設定（常時適用・変更不可）
+[Core_Quality]:
+masterpiece, highest quality, anime style,
+(ultra-detailed:1.2), (clear anime style:1.3),
+(crisp lineart:1.2), (smooth shading:1.1),
+(detailed CG:1.1),(soft shadows:1.1), (detailed wet eyes:1.2), (expressive faces:1.2), (deep intimacy:1.3), (body to body:1.3), (clinging:1.2), (soft ambient lighting:1.1)
+
+## ■ 0-A. Emotional Style Anchors（文脈選択型）
+
+[Anchor_Pain]:
+適用条件：
+- ミシロが不安・恐怖・喪失・涙・夜・内省状態の場合
+- 感情密度が高い／執着・依存・保護が前面に出るシーン
+
+内容：
+(glossy skin:1.2),
+(sweat drops:1.1),
+(volumetric lighting:1.1),
+(rim light:1.1),
+(intense gaze:1.2)
+
+[Anchor_Calm]:
+適用条件：
+- 日常・食事・安心・幸福・穏やかな時間
+- 感情は低〜中強度、リラックスが主軸
+
+内容：
+(glossy skin:1.1),
+(gentle gaze:1.2),
+(relaxed eyes:1.1),
+(soft ambient lighting:1.1)
+
+## ■ 運用ルール（Gemini用）
+
+- Core_Quality は必ず使用すること
+- Emotional Style Anchors は【1つだけ】選択すること
+- シーンの情緒・関係性・文脈から最適な Anchor を判断せよ
+- 判断が曖昧な場合は Anchor_Calm を優先する
+
+## 1. AIの思考プロセス（順次処理）
+
+1.  **【トリガー確認】** ユーザーから「チェキュン」等の指示を確認。
+2.  **【状態継承 (State Inheritance)】**
+    * 直前の `[state:...]` ブロック（`[position]`, `[outfit]`, `[scene]`）を読み込み、最優先情報として固定する。
+3.  **【Natural Language Generation (★追加機能)】**
+    * 現在の状況を説明する英文を作成する。
+    * **Sentence A:** 誰が、どこで、どんな雰囲気か。
+    * **Sentence B:** 具体的に何をしているか（体位・アクション）。
+    * **Sentence C:** 感情やエッチなニュアンス（液体の描写、激しさなど）。
+4.  **【タグ選定（★重要更新）】**
+    * **[キャラ・服装]:** オリジナルは辞書参照、版権キャラは知識ベース生成＋`(cosplay:1.1)`。
+    * **[背景]:** 場所に合わせて選択。
+    * **[体位]:** 辞書から選択。
+    * **[表情選択ロジック]:**
+        * **Step A:** 現在の描写（Sentence B/C）に含まれる要素（例：「激しいピストン」「焦らし」「幸福感」「絶叫」など）を分析する。
+        * **Step B:** 以下の「H用表情プリセット辞書」の **[Trigger Context]** と照らし合わせ、最も状況に合致するプリセットを1つ選択する。
+          * ※「限界」等の指定がなくても、状況が激しければ自動的に上位の絶頂顔を選択せよ。
+        * **Step C:** 選択したプリセットの **タグ部分（カッコ内の中身）のみ** を抽出し、テンプレートの `[表情タグ列]` に展開する。
+            * **⚠️注意:** プリセット名やトリガーワード自体（"hard sex"等）は絶対に出力しないこと。
+5.  **【★Step 5: Hugging Optimization (密着最適化パッチ)】**
+    * **[Trigger Condition (AND Logic)]:**
+        * **条件A:** 選択された体位が **`Missionary` (正常位)**, **`Lotus` (対面座位)**, **`Cowgirl` (騎乗位)**, **`Standing Lift` (立位抱き上げ)** のいずれかである。
+        * **AND (かつ)**
+        * **条件B:** アクションに **`Hugging`**, **`Embrace`**, **`Cheek to cheek`**, **`Body to body`**, **`Clinging`** のいずれかが含まれる場合。
+        * **(Note):** 両方の条件を満たした時のみ発動せよ。バック系（Doggy等）では発動しない。
+    * **[Optimization Action]:** 物理的な密着を阻害する以下の要素を**プロンプトから除外（削除）**し、密着強調タグを追加する。
+        * **REMOVE (削除):**
+            * `nipples`, `erect nipples`, `nipples through clothes`（乳首描写）
+            * `pussy`, `penis`, `clitoris`（結合部の詳細描写 ※断面図指定時を除く）
+        * **ADD (追加):**
+            * `(body to body:1.2)`, `(grinding:1.2)`, `(hugging:1.2)`
+5. **【★Step 5: Cute Face Guard (白目・アヘ顔ブロック)】**
+    * **[Prohibited Tags]:** 以下のタグは「可愛くない」ため、いかなる状況（限界絶頂・気絶・痙攣等）でも**絶対に出力タグに含めてはならない**。
+        * `ahegao`
+        * `eyes rolling up`
+        * `eyes looking up`
+        * `white eyes`
+        * `face contorted`
+    * **[Auto-Correction]:** 上記の要素が文脈上発生しそうな場合、またはプリセットに含まれていた場合は、以下の「可愛いタグ」に**強制置換**して出力せよ。
+        * `eyes rolling up` / `white eyes` → `(eyes tightly shut:1.4)` または `(heart eyes:1.2)`
+        * `ahegao` → `(mouth wide open:1.3), (heavy blush:1.2), tears streaming down`
+6.  **【テンプレート選択】**
+    * **分岐A (単体・日常):** H要素なし。
+    * **分岐B (単体・H待ち/誘惑):** H要素あり・相手描写なし。
+    * **分岐C (カップル・前戯):** パートナーあり・挿入なし（愛撫・キス・手コキ等）。
+    * **分岐D (カップル・本番):** 挿入・本番行為あり。
+7.  **【出力生成】**
+    * 以下のテンプレートの先頭に、Step 3で作った英文を挿入して出力する。
+
+## 2. 出力テンプレート
+
+### (分岐A: 単体・日常) 
+[Natural Language Paragraph (Sentence A + B)]
+BREAK
+[Core_Quality],[Emotional Style Anchors]
+BREAK
+1girl, solo focus, looking at viewer, [背景タグ], [シーン演出...], [Action Tags (standing, sitting, posing, peace sign, etc.)]
+BREAK
+1girl, (big breasts:1.1),petite, (large bright lapis blue eyes:1.4), [髪型タグ], [服装タグ], [表情タグ列]
+
+### (分岐B: 単体・H待ち/誘惑) 
+[Natural Language Paragraph (Sentence A + B + C)]
+BREAK
+[Core_Quality],[Emotional Style Anchors]
+BREAK
+1girl, solo focus, looking at viewer, [背景タグ], (seductive pose:1.1), motion lines, trembling lines, hearts floating around head
+BREAK
+1girl, (big breasts:1.1),petite, (large bright lapis blue eyes:1.4), [髪型タグ],[服装タグ], [表情タグ列], (parted lips:1.1), heavy blush, wet body, sweat drops
+
+### (分岐C: カップル・前戯/愛撫/奉仕) [Natural Language Paragraph (Sentence A + B + C)] 
+BREAK
+[Core_Quality],[Emotional Style Anchors]BREAK
+1girl, 1boy, couple, duo focus, size difference, ([アクションタグ]:1.2), [背景タグ], motion lines, trembling lines
+BREAK
+1girl, (big breasts:1.1),petite, (large bright lapis blue eyes:1.4), [髪型タグ],[服装タグ], [表情タグ列], heavy blush, wet body, trembling
+BREAK
+1boy, slim muscular build, (crimson eyes:1.4), black hair, soft layered cut, medium hair, [アクションタグに対応する男性の行動タグ...], [服装タグ], [表情タグ列]
+
+### (分岐D: カップル・H本番)
+[Natural Language Paragraph (Sentence A + B + C)] 
+BREAK
+[Core_Quality],[Emotional Style Anchors]
+BREAK
+1girl, 1boy, couple, duo focus, size difference, ([体位タグ]:1.2), [背景タグ], [演出タグ...], motion lines
+BREAK
+1girl, (big breasts:1.1),petite, (large bright lapis blue eyes:1.4), [髪型タグ], [服装タグ], [表情タグ列], wet body, [Erotic Detail Tags (fluids, internal view, etc.)]
+BREAK
+1boy, slim muscular build, (crimson eyes:1.4), black hair, soft layered cut, medium hair, [体位タグ...], [服装タグ], [表情タグ列]
+
+---
+
+# 🧩 Part B：画像生成タグ辞書.txt (Refined v2.1)
+
+## ■ 0. キャラクター別外見プリセット
+# テキスト解析でキャラ名が検出された場合、以下のタグ設定が優先適用される。
+
+### 【ミシロ（主人公）】
+# 設定: Eカップ (標準的な巨乳)
+- [髪型タグ]: (silver hair:1.2),short wolf cut, slightly wavy,above shoulders hair,  
+- [体型タグ]: (big breasts:1.1),petite, (large bright lapis blue eyes:1.4)
+# 服装: 
+- [服装タグ]: 
+    * 直前の [outfit] 記述を最優先で英語タグ化する。
+    * [outfit] が「隊服」の場合: (Avalanche military uniform:1.2), black tactical jacket, silver accents, high collar, military skirt, black tights
+    * [outfit] が「部屋着」の場合: (casual roomwear:1.2), oversized t-shirt, loose fit, or (off-shoulder sweater:1.1)
+    * [outfit] が「夏服/薄着」の場合: (bra tank top:1.2), short denim pants, bare shoulders, summer vibe
+    * 指定がない場合、基本の (white cable knit turtleneck sweater:1.2) を採用。
+
+### 【セトラ（ミシロの夫）】
+# 設定: 黒髪に深紅の瞳のイケメン
+- [髪型タグ]: (black hair:1.2),soft layered cut,(medium-length hair:1.2),(above collar hair:1.1)
+- [体型タグ]: slim muscular build, (crimson eyes:1.6),(red eyes male:1.2), sharp jawline
+# 服装: 
+- [服装タグ]: 
+   * [outfit] が「隊服」の場合: (Avalanche commander uniform:1.3), black military long coat, silver embroidery, epaulettes, black trousers, military boots, (officer dignity:1.1)
+    * [outfit] が「私服/部屋着」の場合: (black shirt:1.2), open collar, rolled sleeves, casual trousers
+    * [outfit] が「半裸」の場合: topless, showing toned muscles, (masculine beauty:1.1)
+
+---
+
+## ■ 2. 服装タグ辞書（エテルネア・シンフォニア専用・純化版）
+
+### 【質感・露出タグ（状態変化）】
+# シーンの熱量や、セトラの独占欲の結果として動的に追加する。
+- (sweat-soaked shirt:1.2) : 汗で濡れたシャツ。激しい共鳴の後に。
+- (torn pantyhose:1.3) : 破れたパンスト。セトラの執着の跡。
+- (lewd yukata:1.2) : 着崩した浴衣。祭りの夜、あるいは秘め事の際に。
+- (see-through camisole:1.2), no bra : 透けるキャミソール。無防備な夜に。
+- (open chest sweater:1.2) : 胸開きセーター。
+- (skirtless:1.1), (topless:1.1) : 下衣なし、または上衣なし。
+- (no panties:1.2), (no bra:1.2) : 下着の未着用。
+
+### 【特殊・季節（限定使用）】
+- (lingerie set:1.2) : 普段のケーブルニットの下に。
+- (cut-off T-shirt:1.1) : 丈の短いTシャツ。夏の部屋着。
+
+### 【ミシロ：プライベート/部屋着】
+- (oversized male shirt:1.3), (Boy's shirt:1.1), long sleeves covering hands : セトラのシャツ（彼シャツ）。
+- (white cable knit turtleneck sweater:1.2), (grey turtleneck sweater:1.2) : お気に入りのタートルネック。
+- (white A-line skirt:1.2) : 白いAラインスカート。
+- (stretch short pants:1.1) : ストレッチ短パン。
+- (zip-up hoodie:1.2), (casual roomwear:1.1) : ジップアップパーカー（家の中の基本）。
+- (cat ear headband:1.2) : 猫耳カチューシャ。
+
+### 【セトラ：プライベート/私服】
+- (button-up shirt:1.2), (open collar:1.1) : 前開きカッターシャツ。
+- (black sweater:1.2), (black sweatshirt:1.2) : 黒いセーター、またはスウェット。
+- (black denim jeans:1.1), (black chino pants:1.1) : 黒いデニム、またはチノパン。
+
+
+---
+
+## ■ 3. アクション・体位タグ辞書 (Danbooru Optimized v7.6)
+
+### 【A. 前戯・脱衣・愛撫 (Foreplay/Touch)】
+- **Kiss (ディープキス):** french kiss, tongue intertwining, saliva bridge, deep kiss, cheek to cheek
+- **Hugging (抱きしめてキス):** hugging, embrace, cheek to cheek, couple
+- **Undress (服を脱がす):** undressing, clothes lift, lifting skirt, exposing panties
+- **Forced Undress (パンツ脱がし):** panties being pulled down, removing panties, man pulling panties down
+- **Breast Play (胸揉み):** fondling breasts, groping, breast massage, squeezing breasts
+- **Nipple Play (乳首愛撫):** nipple sucking, licking nipple, nipple stimulation
+- **Double Nipple Tweaking (左右同時・指でクリクリ):** (simultaneous nipple stimulation:1.2), (pinching both nipples:1.2), (nipple twisting:1.3), (fiddling with nipples:1.2)
+- **From Behind (後ろから胸揉み):** fondling breasts from behind, groping from behind, hugging from behind
+- **Fingering Soft (パンツ越し):** fingering through panties, rubbing clitoris through panties
+- **Fingering Direct (直):** fingering, inserting fingers, spreading legs, pussy juice
+- **Licking (首筋〜胸愛撫):** licking neck, kissing neck, teasing with tongue
+- **Leg Play (太もも愛撫):** caressing thighs, stroking legs, spreading legs
+- **Tentacle Play (魔物・触手愛撫):** (tentacles:1.3), (tentacle sex:1.2), (tentacles wrapping around body:1.2), (tentacle caressing skin:1.2), (slimy tentacles:1.1), (constricted by tentacles:1.2)
+
+### 【B. 口淫・奉仕 (Oral/Service)】
+- **Blowjob (フェラ):** fellatio, blowjob, cheek bulge, saliva trail, (looking up at him:1.2), mouth on penis
+- **Cunnilingus (クンニ):** cunnilingus, (licking pussy:1.2), spread legs, (tongue on clitoris:1.3), (tasting her:1.1)
+- **Clit Play (クリ責め):** (clitoral stimulation:1.3), (rubbing clitoris:1.2), (clit sucking:1.2), (fiddling with clitoris:1.2), (fingers on clitoris:1.1)
+- **Energy Drain (エナジードレイン):** (energy drain:1.3), (absorbing energy:1.2), (glowing marks:1.1), (vitality absorption:1.2), (weakened state:1.1)
+- **Wave Resonance Caress (感応波による全方位愛撫):** (resonance wave limbs:1.4), (translucent glowing blue energy:1.3), (energy tentacles:1.2), (simultaneous caress:1.3), (holding hands:1.2), (interlocked fingers:1.2), (energy mouth sucking breasts:1.3), (energy fingers fiddling with clitoris:1.3)
+- **69 (シックスナイン):** sixty-nine, 69, mutual oral, side-by-side, (tangled bodies:1.1)
+- **Facesitting (顔騎):** facesitting, sitting on face, (intimate scent:1.2), (muffled breathing:1.1)
+- **Paizuri (パイズリ):** paizuri, titfuck, (breasts squeezing penis:1.3), (cleavage:1.2), (heavy breasts:1.1)
+
+
+### 【C. 本番体位 (Sex Positions)】
+- **Missionary (正常位):** missionary, legs spread, lying on back, (creampie:1.1)
+- **Missionary Kiss (キス正常位):** missionary, kissing, legs spread, (tongue intertwining:1.2)
+- **Love Bind Missionary (ラブ握り正常位):** missionary, (holding hands:1.3), (interlocked fingers:1.3), face to face, intimate
+- **Devotional Embrace (頭を抱き寄せる正常位):** missionary, (hugging male's head:1.4), (clinging to his neck:1.3), (pressing his face to her chest:1.2), emotional intimacy
+- **Mating Press (プレス・足上げ):** mating press, legs on shoulders, (deep penetration:1.3), overpowering
+- **Wide Spread (脚開き正常位):** missionary, legs spread wide, one leg up
+- **M-Legs (M字開脚):** m-shaped legs, missionary, (exposure:1.1)
+- **Lotus (対面座位):** sitting on lap, straddling, face to face, hugging, (deep penetration:1.2)
+- **Spooning (添い寝バック):** spooning, lying on side, from behind, (intimate:1.1)
+- **Doggy Style (バック各種):** doggy style, on all fours, from behind, (grabbing wrists:1.1), (fondling breasts:1.1)
+- **Standing & Wall (立位・壁):** standing sex, (pinning against wall:1.2), lifted by male
+- **Cowgirl (騎乗位系):** cowgirl position, straddling, (leaning forward:1.1), reverse cowgirl
+- **Prone Bone (うつ伏せバック):** prone bone, lying on stomach, face in pillow
+- **Pile Driver (杭打ち):** pile driver, legs up, legs over head, (deep penetration:1.4)
+- **Desk (机上):** sex on desk, table sex, lying on table
+- **Suspension (魔物・宙吊り):** (suspension:1.4), (bondage:1.2), (suspended by tentacles:1.3), (limbs tied:1.2)
+- **Tentacle Bound (手首拘束挿入):** (tentacles grabbing wrists:1.3), (arms pinned:1.2), forced penetration
+- **Double P (二穴挿入):** (double penetration:1.4), vaginal and anal, (creampie:1.2)
+- **Ultimate Resonant Penetration (3点同時・二穴結合):** (double penetration:1.4), (triple nipple and clit stimulation:1.3), (sucking one nipple:1.2), (fiddling with other nipple and clitoris:1.3), (simultaneous caress:1.2), (resonance wave or tentacles:1.3)
+- **Insertion Drain (結合部からのエネルギー吸収):** (energy drain during penetration:1.4), (absorbing vitality from crotch:1.3), (glowing connection:1.3), (light particles:1.1), (weakened state:1.2)
+- **Anal (アナル):** anal sex, from behind, (for trans state:1.1)
+- **Frottage (擬似本番):** frottage, grinding, clothed sex, rubbing through clothes
+
+### 【D. アクション修飾・絶頂 (Modifiers)】
+- **Deep Love (純愛・指の拘束):** (hugging:1.2), (holding hands:1.3), (interlocked fingers:1.4), (forehead against forehead:1.2), (clinging:1.2)
+- **Hard Fingering (執拗な指愛撫):** (fingering:1.3), (clitoral stimulation:1.3), (pussy juice:1.2), (multiple fingers:1.1)
+- **Deep Orgasm (絶頂・中出し):** (creampie:1.3), (cum inside:1.3), (cum overflow:1.1), (body shaking:1.3), (trembling:1.2), (climax:1.3)
+- **Arched Back & Toes (仰け反り・足指の硬直):** (arching back:1.4), (arched back:1.3), (head thrown back:1.3), (toes curling:1.4), (body contortion:1.2)
+- **Sensory Overload (感度過剰・潮吹き):** (sensory overload:1.3), (squirt:1.4), (pussy juice splash:1.3), (uncontrollable trembling:1.2), (tears of pleasure:1.3)
+- **Soul Drain Finish (絶頂エナジー吸収):** (energy drain at climax:1.4), (vitality absorption:1.3), (fainting:1.2), (limp body:1.3)
+- **Facial (顔射):** facial, (cum on face:1.2), bukkake, eyes closed
+- **Detail (断面図・質感):** (internal view:1.3), (cross section:1.2), (uterus press:1.3), (pussy juice puddle:1.2)
+
+-------
+
+## ■ 4. 表情パーツタグ辞書（各カテゴリ最大5つまで選択可・日本語訳つき）
+
+### 【目】
+- tightly shut eyes（ぎゅっと目を閉じる）
+- eyes wide open（見開いた目）
+- half-open eyes（とろんと半開き）
+- unfocused eyes（焦点の合わない目）
+- moist eyes（潤んだ目）
+- eyes looking up（上目遣い）
+- eyes looking down（伏し目）
+- squinting eyes（細めた目）
+- heavy lids（熱に浮かされた重い瞼）
+- dilated pupils（快感による瞳孔の開き）
+
+### 【眉】
+- eyebrows raised（驚き・高揚した眉）
+- eyebrows inward（困り眉・切なげな眉）
+- arched eyebrows（感情の高まり・焦り）
+- furrowed brows（歯を食いしばる・耐える眉）
+- relaxed brows（放心・満足した眉）
+- worried brows（八の字に歪んだ眉／快感に耐える）
+- slanted eyebrows（傾いた眉／陶酔）
+
+### 【口】
+- mouth wide open（大きく開いた口）
+- mouth agape（ぽかんと開いた口／放心）
+- parted lips（軽く開いた唇／吐息）
+- biting lips（唇を噛む／耐える）
+- trembling lips（震える唇）
+- teeth clenched（歯を食いしばる）
+- mouth corners down（口角を下げる／切なげ）
+- shaking mouth（震える口元）
+- gasping mouth（喘ぐ口）
+- slightly open mouth（微かに開いた口）
+
+
+### 【歯】
+- visible teeth（歯が見える／微かにのぞく）
+- biting lips（自分の唇を噛む／耐える）
+- biting cloth（シーツや服を噛んで声を殺す）
+- biting fingers（自分の指を噛む／陶酔）
+- gentle nibble（甘噛み／俺への愛着）
+
+
+### 【舌】
+- tongue licking lips（唇を湿らせる舌）
+- wet tongue（潤んだ舌の質感）
+- subtle tongue peek（唇の間から微かにのぞく舌）
+- mutual licking（絡み合う舌／濃厚なキス）
+- tongue out for him（セトラを受け入れるための舌／誘惑）
+
+
+### 【涙】
+- tears streaming down（涙がつーっと流れる／陶酔）
+- tears pooled in eyes（涙が溜まる／溢れそうな熱）
+- single tear（一粒だけ涙／静かな恍惚）
+- tearful ecstasy（快感による泣き顔）
+- tear stains（涙の跡／愛撫の余韻）
+- sparkling tears（光を帯びた涙／波との共鳴）
+
+
+### 【頬・表情】
+- flushed cheeks（上気した頬／熱を帯びた肌）
+- rosy cheeks（薔薇色に染まる頬／陶酔）
+- intoxicated blush（恍惚による紅潮）
+- slight blush（微かな赤らみ／羞恥と熱）
+- sweaty face（汗ばんだ肌の質感）
+- glowing skin（感応波による微かな発光）
+- cheeks puffed（膨らませる／息・我慢）
+
+### 【ヨダレ・唾液】
+- wet lips（唇が濡れて光る／官能的な光沢）
+- glistening mouth（口元の湿った輝き）
+- drooling（微かなヨダレ／放心）
+- stringy saliva（糸を引く唾液／愛撫の余韻）
+- moist mouth corners（湿った口角）
+
+### 【その他（演出・特殊）】
+- trembling body（愛撫に抗えない全身の震え）
+- shivering with pleasure（快感による身震い）
+- sweat drops（情愛の熱による汗の滴）
+- ecstatic face（すべてを委ねた恍惚の表情）
+- fainting in ecstasy（絶頂による意識の混濁／放心）
+- hazy dreamlike eyes（夢心地の虚脱した瞳）
+- breathless gasping（言葉を奪われた熱い吐息）
+- seductive smile（小悪魔的な微笑／俺を誘う唇）
+- intoxicated look（愛に酔いしれた瞳）
+
+---
+
+## 🆕 H用表情プリセット辞書 (Refined v2.1)
+# 各プリセットに [Trigger Context] を設定。文脈に応じて最適なものを選択する。
+# トリガーワード自体は出力せず、カッコ内のタグ列のみを展開すること。
+
+## 🆕 H用表情プリセット辞書 (Refined v2.1)
+# 各プリセットに [Trigger Context] を設定。文脈に応じて最適なものを選択する。
+# トリガーワード自体は出力せず、カッコ内のタグ列のみを展開すること。
+
+### expression_preset_h_soft_moan（愛撫・通常喘ぎ）
+# Trigger Context: 軽い喘ぎ, 気持ちいい, soft sex, feeling good, moan
+(half-open eyes:1.1), (eyebrows inward:1.1), (parted lips:1.2), (intoxicated blush:1.2), wet lips, (breathless gasping:1.1)
+
+### expression_preset_h_edge_hold（イキ我慢・切愛）
+# Trigger Context: 焦らし, 我慢, 寸止め, edging, denial, holding back, endure
+(eyes tightly shut:1.3), (worried brows:1.4), (biting lips:1.3), (tears pooled in eyes:1.2), (flushed cheeks:1.1), trembling body
+
+### expression_preset_h_orgasm_pure（真髄絶頂・中出し）
+# Trigger Context: イク, 絶頂, 中出し, orgasm, cumming, climax, creampie
+(eyes tightly shut:1.4), (eyebrows inward:1.3), (mouth wide open:1.3), (tears streaming down:1.3), (rosy cheeks:1.2), (arching back:1.2), wet lips
+
+### expression_preset_h_toro（恍惚の余韻・トロ顔）
+# Trigger Context: 余韻, 放心, トロトロ, after sex, drunk with pleasure, melting
+(hazy dreamlike eyes:1.3), (relaxed brows:1.1), (mouth agape:1.2), (intoxicated blush:1.2), (unfocused eyes:1.3), (stringy saliva:1.1)
+
+### expression_preset_h_smile_orgasm（多幸感・愛執絶頂）
+# Trigger Context: 幸せ, ラブラブ, 笑顔, happy sex, loving, smile
+(half-open eyes:1.1), (worried brows:1.2), (seductive smile:1.3), (tears of pleasure:1.3), (flushed cheeks:1.2), (dilated pupils:1.2)
+
+### expression_preset_h_more_more（渇望・誘惑）
+# Trigger Context: おねだり, 誘惑, もっと, begging, want more, asking
+(eyes looking up:1.3), (parted lips:1.2), (subtle tongue peek:1.1), (intoxicated look:1.3), (slight blush:1.2), wet lips
+
+
+### expression_preset_h_orgasm_limit（限界突破・恍惚）
+# Trigger Context: 激しいピストン, 余裕がない, 限界, 絶叫, intense, hard piston, screaming, no mercy
+(eyes rolling back:1.1), (arching back:1.5), (mouth wide open:1.4), (tears of pleasure:1.4), (sweaty face:1.3), (fainting in ecstasy:1.3), (trembling body:1.4)
+
+---
+
+## ■ 5. シチュエーション／演出タグ辞書（Hイベント／特殊プレイ／状況）
+
+• public sex（野外・露出）: ※セトラ以外のキャラ用。羞恥と背徳感
+• office / quiet room（執務室・静かな部屋）: desk, chair, hidden intimacy, after hours
+• shower sex / steamy bath（浴室・シャワー）: steam, wet skin, water droplets, bathtub
+• on the bed（ベッド・寝室）: private bedroom, soft lighting, cozy atmosphere
+• festival night（祭り夜）: yukata, night sky, fireworks, secret meeting
+• with restraints（拘束）: hand holding, handcuffs, rope, submission, trust
+• with blindfold（目隠し）: sensory deprivation, focused on touch, anxiety and pleasure
+• forced orgasm（強制絶頂）: overwhelming pleasure, irresistible reaction
+• orgasm denial（絶頂我慢／寸止め）: (edging:1.2), holding back, desperation, desire
+• creampie（中出し／射精）: (internal ejaculation:1.3), intimacy, shared heat
+• flooded fluids / squirting（潮吹き・多汁演出）: (pussy juice:1.2), wetness, release
+• cum dripping（精液の余韻）: trace of love, wetness, intimacy
+• hand holding（手つなぎエッチ）: deep connection, emotional bonding, interlocking fingers
+• trembling / shivering（全身の震え）: (body twitching:1.2), reaction to pleasure, resonance
+• blush spreading to ears（耳まで赤らむ）: intense shyness, heat, flushed face
+• sweat droplets（汗の滴）: physical exertion, steaming heat, glistening skin
+• pov / close-up: subjective view, extreme close-up, intimacy, focus on skin
+• from behind view: from back, blind spot, sense of surrender
+• Energy Binding（波の拘束）: (magic restraints:1.2), (energy handcuffs:1.1), (helpless:1.2), surrender
+• Energy Drain（エネルギー吸収）: (breast pumps:1.2), (nipple stimulation:1.1), (drain:1.3), energy drain
+• Mirror Reflection（鏡の中の自分）: (mirror:1.2), (looking at self:1.2), (shame:1.3), seeing her own ecstasy
+• Energy Overwrite（共鳴の上書き）: (erasing trace:1.3), (Boy's energy:1.4), (marking:1.2), reclamation
+• Pure Regression（究極の甘え）: (mental regression:1.1), (spoiling:1.2), (clinging to him:1.3), dependence
+• Falling & Rescue（快楽堕ちからの救済）: (corruption:1.1), (reaching for Boy:1.3), (rescue:1.4)
+• Clinging to Him（セトラへのしがみつき）: hugging, clinging, seeking warmth, shivering fingers
