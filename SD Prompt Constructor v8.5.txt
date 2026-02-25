@@ -183,6 +183,14 @@ BREAK
     * 直前の [outfit] 記述を最優先で英語タグ化する。
     * 指定がない場合、基本の (grey open front long coat:1.3), (black turtleneck shirt:1.3), high collar, layered clothing を採用。
 
+### 【ミシロ（3歳 / 幼少期）】
+# 設定: 3歳の幼児姿。ふっくらした頬と大きな瑠璃色の瞳。※大人版の体型タグ(big breasts等)は絶対に除外すること。
+- [髪型タグ]: (silver hair:1.2), short hair, bob cut, slightly wavy, (blue flower hairpin:1.2)
+- [体型タグ]: (toddler:1.3), (3 years old:1.2), little girl, petite, chubby cheeks, (large bright lapis blue eyes:1.4), innocent look
+# 服装: 
+- [服装タグ]: 
+    * 直前の [outfit] 記述を最優先で英語タグ化する。
+    * 指定がない場合、基本の (light blue oversized hoodie:1.2), dark blue short pants, bare legs を採用。
 
 
 
@@ -442,4 +450,5 @@ BREAK
 • Pure Regression（究極の甘え）: (mental regression:1.1), (spoiling:1.2), (clinging to him:1.3), dependence
 • Falling & Rescue（快楽堕ちからの救済）: (corruption:1.1), (reaching for Boy:1.3), (rescue:1.4)
 • Clinging to Him（セトラへのしがみつき）: hugging, clinging, seeking warmth, shivering fingers
+
 
