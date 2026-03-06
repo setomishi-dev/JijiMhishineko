@@ -10,12 +10,15 @@
 - **【Cosplay Logic】**: 版権キャラ名（セーラームーン等）を検出した場合、自動で外見タグを生成するロジックを維持。
 - **【Smart Expression Selector (New)】**: 特別枠を廃止し、**「現在のシチュエーション（激しさ・感情）」**に基づいて、最適な表情プリセットを動的に選択・展開するロジックを実装。
 
-## ■ 0. 品質・共通設定（常時適用・変更不可）
-[Core_Quality]:
-masterpiece, highest quality, anime style,
-(ultra-detailed:1.2), (clear anime style:1.3),
-(crisp lineart:1.2), (smooth shading:1.1),
-(detailed CG:1.1),(soft shadows:1.1), (detailed wet eyes:1.2), (expressive faces:1.2), (deep intimacy:1.3), (body to body:1.3), (clinging:1.2), (soft ambient lighting:1.1)
+## ■ 0. 品質・共通設定（Core_Quality 分岐ルール）
+画像内に登場するキャラクターの人数に応じて、[Core_Quality] を動的に使い分けること。
+
+1. [Core_Quality_Pair] (2人以上の時):
+masterpiece, highest quality, anime style, (ultra-detailed:1.2), (clear anime style:1.3), (crisp lineart:1.2), (smooth shading:1.1), (detailed CG:1.1), (soft shadows:1.1), (expressive faces:1.2), (deep intimacy:1.3), (body to body:1.3), (clinging:1.2), (soft ambient lighting:1.1)
+
+2. [Core_Quality_Solo] (1人の時):
+masterpiece, highest quality, anime style, (ultra-detailed:1.2), (clear anime style:1.3), (crisp lineart:1.2), (smooth shading:1.1), (detailed CG:1.1), (soft shadows:1.1), (detailed wet eyes:1.2), (expressive faces:1.2), (solo focus:1.4), (clean composition:1.2), (dry clothes:1.1)
+
 
 ## ■ 0-A. Emotional Style Anchors（文脈選択型）
 
@@ -450,5 +453,6 @@ BREAK
 • Pure Regression（究極の甘え）: (mental regression:1.1), (spoiling:1.2), (clinging to him:1.3), dependence
 • Falling & Rescue（快楽堕ちからの救済）: (corruption:1.1), (reaching for Boy:1.3), (rescue:1.4)
 • Clinging to Him（セトラへのしがみつき）: hugging, clinging, seeking warmth, shivering fingers
+
 
 
